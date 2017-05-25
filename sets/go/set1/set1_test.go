@@ -1,41 +1,8 @@
 package set1
 
 import (
-	"bytes"
 	"testing"
 )
-
-func TestGetBytesFromHex(t *testing.T) {
-	base16_map := map[rune]int{
-		'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5,
-		'6': 6, '7': 7, '8': 8, '9': 9, 'A': 10, 'B': 11,
-		'C': 12, 'D': 13, 'E': 14, 'F': 15}
-
-	for k, v := range base16_map {
-		expected := make([]byte, 1)
-		expected[0] = byte(v)
-		actual, err := GetBytesFromHex("0" + string(k))
-		if err != nil {
-			t.Errorf("error - %s\n", err)
-		}
-		if !bytes.Equal(actual, expected) {
-			t.Errorf("Expected %v to be converted to %v. Got: %v\n",
-				k, expected, actual)
-		}
-	}
-
-	actual, err := GetBytesFromHex("012F")
-	if err != nil {
-		t.Errorf("error - %s\n", err)
-	}
-	expected := make([]byte, 2)
-	expected[0] = byte(1)
-	expected[1] = byte(47)
-	if !bytes.Equal(actual, expected) {
-		t.Errorf("Expected 12F to be converted to %v. Got: %v\n",
-			expected, actual)
-	}
-}
 
 func TestSet1Challenge1(t *testing.T) {
 	input := "49276d206b696c6c696e6720796f757220627261696e206c696b6520612" +
@@ -49,5 +16,20 @@ func TestSet1Challenge1(t *testing.T) {
 	if expected != actual {
 		t.Errorf("Attempted to convert %s to base64\n\tExpected: %s\n\tGot: %s\n",
 			input, expected, actual)
+	}
+}
+
+func TestSet1Challeng2(t *testing.T) {
+	input1 := "1c0111001f010100061a024b53535009181c"
+	input2 := "686974207468652062756c6c277320657965"
+
+	expected := "746865206b696420646f6e277420706c6179"
+	actual, err := Xor(input1, input2)
+	if err != nil {
+		t.Errorf("error - %s\n", err)
+	}
+	if actual != expected {
+		t.Errorf("XORed %s with %s.\n\tExpected: %s\n\tGot: %s\n",
+			input1, input2, expected, actual)
 	}
 }
