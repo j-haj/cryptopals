@@ -1,6 +1,9 @@
 # macOS
 *.DS_Store
 
+# Don't inlucde the build directory
+*/build
+
 # Compiled Object files
 *.slo
 *.lo

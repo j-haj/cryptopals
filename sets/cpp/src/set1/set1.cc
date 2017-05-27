@@ -1,7 +1,8 @@
 #include "set1.h"
 
+#include <cctype>
+#include <map>
 #include <sstream>
-#include <string>
 
 std::string hex_to_base64(const std::string& input) {
   constexpr std::string base64_chars =
@@ -38,18 +39,24 @@ std::string hex_to_base64(const std::string& input) {
   return output;
 }
 
-long hex_strtoval(const std::string& input) {
-  long exponent = input.size();
-  long result = 0;
-  constexpr std::map<char, int> char_map = {
+std::vector<uint8_t> hex_strtoval(const std::string& input) {
+  // Pad with zero on left side of string if there is not an even number
+  // of hex characters
+  long length = input.size();
+  std::string pad = "";
+  if (length % 2 == 1) {
+    pad = "0";
+  }
+  std::string padded_str = pad + input;
+  const std::map<char, uint8_t> char_map = {
     {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3},
     {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7},
     {'8', 8}, {'9', 9}, {'A', 10}, {'B', 11},
     {'C', 12}, {'D', 13}, {'E', 14}, {'F', 15}};
-  
-  for (const char& x : input) {
-    const char c = toupper(x);
-    result += char_map.at(x) * pow(16, exponent);
+  std::vector<uint8_t> result(padded_str.size());
+  for (long i = padded_str.size() - 1; i > 0; i -= 2) {
+    result[i] = 0x10 * char_map[std::toupper(padded_str[i])] +
+          char_map[std::toupper(padded_str[i - 1])];
   }
   return result;
 }
