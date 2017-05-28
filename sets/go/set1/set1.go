@@ -3,6 +3,7 @@ package set1
 import (
 	"encoding/hex"
 	"errors"
+	"strings"
 	"unicode/utf8"
 )
 
@@ -75,4 +76,27 @@ func Xor(s1, s2 string) (string, error) {
 		return "", err
 	}
 	return output, nil
+}
+
+func XorCharMap(s string) ([]string, error) {
+	charFrequencies := [26]rune{'e', 't', 'a', 'o', 'i', 'n', 's',
+		'h', 'd', 'l', 'c', 'u', 'm', 'w',
+		'f', 'g', 'y', 'p', 'b', 'v', 'k',
+		'j', 'x', 'q', 'z'}
+
+	decodedStrings := make([]string, 26)
+	for i, c := range charFrequencies {
+		decodedInput, err := hex.DecodeString(s)
+		if err != nil {
+			return make([]string, 1), err
+		}
+		cString := strings.Repeat(string(c), utf8.RuneCountInString(string(decodedInput)))
+		hexCString := hex.EncodeToString([]byte(cString))
+		decodedString, err := Xor(s, hexCString)
+		decodedStrings[i] = decodedString
+		if err != nil {
+			return make([]string, 1), err
+		}
+	}
+	return decodedStrings, nil
 }

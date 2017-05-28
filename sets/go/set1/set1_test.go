@@ -1,6 +1,7 @@
 package set1
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -31,5 +32,13 @@ func TestSet1Challeng2(t *testing.T) {
 	if actual != expected {
 		t.Errorf("XORed %s with %s.\n\tExpected: %s\n\tGot: %s\n",
 			input1, input2, expected, actual)
+	}
+}
+
+func TestSet1Challenge3(t *testing.T) {
+	const input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+	res, _ := XorCharMap(input)
+	for x, _ := range res {
+		fmt.Printf("%v\n", x)
 	}
 }
