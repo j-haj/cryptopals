@@ -3,24 +3,25 @@
 #include <cctype>
 #include <map>
 #include <sstream>
+#include <stdexcept>
 
 std::string hex_to_base64(const std::string& input) {
-  constexpr std::string base64_chars =
+  std::string base64_chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
 
   std::string pad = "";
-  if (input % 3 == 1) {
+  if (input.size() % 3 == 1) {
     pad = "00";
-  } else if (input % 3 == 2) {
+  } else if (input.size() % 3 == 2) {
     pad = "0";
   }
       
   // Get long value from input
   const std::string padded_input = input + pad;
-  unsigned long x = hex_strtoval(padded_input);
+  std::vector<uint8_t> bytes = hex_to_bytes(padded_input);
 
   long length = padded_input.size();
   long n_iter = length / 6;
@@ -32,31 +33,26 @@ std::string hex_to_base64(const std::string& input) {
   // over by 6 bits
   std::string output(n_iter, '0');
   for (long i = 0; i < n_iter; ++i) {
-    long selected_val = selector & padded_input;
+    long selected_val = selector & bytes[i];
     output[n_iter - i - 1] = base64_chars[selected_val];
-    padded_input >> 6;
+    //padded_input = padded_input >> 6;
   }
   return output;
 }
 
-std::vector<uint8_t> hex_strtoval(const std::string& input) {
-  // Pad with zero on left side of string if there is not an even number
-  // of hex characters
-  long length = input.size();
-  std::string pad = "";
-  if (length % 2 == 1) {
-    pad = "0";
+std::vector<uint8_t> hex_to_bytes(const std::string& s) {
+  if (s.size() % 2 == 1) {
+    throw std::runtime_error("Cannot convert an odd number of hex values to bytes\n"); 
   }
-  std::string padded_str = pad + input;
-  const std::map<char, uint8_t> char_map = {
-    {'0', 0}, {'1', 1}, {'2', 2}, {'3', 3},
-    {'4', 4}, {'5', 5}, {'6', 6}, {'7', 7},
-    {'8', 8}, {'9', 9}, {'A', 10}, {'B', 11},
-    {'C', 12}, {'D', 13}, {'E', 14}, {'F', 15}};
-  std::vector<uint8_t> result(padded_str.size());
-  for (long i = padded_str.size() - 1; i > 0; i -= 2) {
-    result[i] = 0x10 * char_map[std::toupper(padded_str[i])] +
-          char_map[std::toupper(padded_str[i - 1])];
+  size_t length = s.size() / 2;
+  std::vector<uint8_t> output(length);
+  std::istringstream ss(s);
+  for (size_t i = s.size() - 1; i > 0; i -= 2) {
+    std::istringstream ss(s.substr(i - 1, 2));
+    uint8_t b;
+    ss >> std::hex >> b;
+    output[(i+1)/2 - 1] = b;
   }
-  return result;
+  return output;
 }
+

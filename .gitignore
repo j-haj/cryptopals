@@ -3,7 +3,7 @@
 
 # Don't inlucde the build directory
 */build
-*build/*
+*/build/*
 # Compiled Object files
 *.slo
 *.lo

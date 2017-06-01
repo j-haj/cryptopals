@@ -10,6 +10,9 @@ enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
+# Include headers
+include_directories("${PROJECT_SOURCE_DIR}/src")
+
 set(SOURCES
   ${SRC_DIR}/set1/set1.cc)
 
