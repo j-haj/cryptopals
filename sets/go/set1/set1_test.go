@@ -20,7 +20,7 @@ func TestSet1Challenge1(t *testing.T) {
 	}
 }
 
-func TestSet1Challeng2(t *testing.T) {
+func TestSet1Challenge2(t *testing.T) {
 	input1 := "1c0111001f010100061a024b53535009181c"
 	input2 := "686974207468652062756c6c277320657965"
 

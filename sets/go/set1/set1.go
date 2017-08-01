@@ -1,3 +1,4 @@
+// Solutions to set1 of Cryptopals
 package set1
 
 import (
@@ -78,11 +79,16 @@ func Xor(s1, s2 string) (string, error) {
 	return output, nil
 }
 
+// TODO: rework -- first we want to get the decoded strings, then we want to
+// return a ranked top 5 selection based on relative letter frequency
 func XorCharMap(s string) ([]string, error) {
 	charFrequencies := [26]rune{'e', 't', 'a', 'o', 'i', 'n', 's',
 		'h', 'd', 'l', 'c', 'u', 'm', 'w',
 		'f', 'g', 'y', 'p', 'b', 'v', 'k',
 		'j', 'x', 'q', 'z'}
+
+	// From Wikipedia page https:://en.wikipedia.org/wiki/Letter_frequency
+	relativeFrequencies := "eariotnslcudpmhgbfywkvxzjq"
 
 	decodedStrings := make([]string, 26)
 	for i, c := range charFrequencies {
