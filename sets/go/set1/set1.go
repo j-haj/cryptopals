@@ -4,6 +4,7 @@ package set1
 import (
 	"encoding/hex"
 	"errors"
+	"math"
 	"strings"
 	"unicode/utf8"
 )
@@ -55,6 +56,8 @@ func HexToBase64(s string) (string, error) {
 	return string(result), nil
 }
 
+// Xor XORs the bytes of the two strings and returns the resulting string
+// after converting the bytes back to a string.
 func Xor(s1, s2 string) (string, error) {
 	if len(s1) != len(s2) {
 		return "", errors.New("input strings must be same length")
@@ -81,28 +84,84 @@ func Xor(s1, s2 string) (string, error) {
 
 // TODO: rework -- first we want to get the decoded strings, then we want to
 // return a ranked top 5 selection based on relative letter frequency
-func XorCharMap(s string) ([]string, error) {
+func XorCharMap(s string) (string, error) {
 	charFrequencies := [26]rune{'e', 't', 'a', 'o', 'i', 'n', 's',
 		'h', 'd', 'l', 'c', 'u', 'm', 'w',
 		'f', 'g', 'y', 'p', 'b', 'v', 'k',
 		'j', 'x', 'q', 'z'}
 
 	// From Wikipedia page https:://en.wikipedia.org/wiki/Letter_frequency
-	relativeFrequencies := "eariotnslcudpmhgbfywkvxzjq"
+	relativeFrequencies := map[rune]float64{
+		'e': 0.12702, 't': 0.09056, 'a': 0.08167, 'o': 0.07507, 'i': 0.06966,
+		'n': 0.06749, 's': 0.06327, 'h': 0.06094, 'r': 0.05987, 'd': 0.04253,
+		'l': 0.04025, 'c': 0.02782, 'u': 0.02758, 'm': 0.02406, 'w': 0.02360,
+		'f': 0.02228, 'g': 0.02015, 'y': 0.01974, 'p': 0.01929, 'b': 0.01492,
+		'v': 0.00978, 'k': 0.00772, 'j': 0.00153, 'x': 0.00150, 'q': 0.00095,
+		'z': 0.00074}
 
 	decodedStrings := make([]string, 26)
 	for i, c := range charFrequencies {
 		decodedInput, err := hex.DecodeString(s)
 		if err != nil {
-			return make([]string, 1), err
+			return "", err
 		}
+
+		// Here we make a string of the given character repeated enough times so
+		// that the resulting string has the same length as `s`. We then XOR the
+		// two strings and store there result
 		cString := strings.Repeat(string(c), utf8.RuneCountInString(string(decodedInput)))
 		hexCString := hex.EncodeToString([]byte(cString))
 		decodedString, err := Xor(s, hexCString)
 		decodedStrings[i] = decodedString
 		if err != nil {
-			return make([]string, 1), err
+			return "", err
 		}
 	}
-	return decodedStrings, nil
+
+	// Now we want to perform some frequency analysis on the `decodedStrings`
+	// The basic idea here is to rank each string by its absolute difference (in
+	// terms of distance from expected frequency distribution) from the predefined
+	// distribution above (`relativeFrequencies`)
+	scoredStrings := make(map[string]float64)
+	for _, s := range decodedStrings {
+		bs, err := hex.DecodeString(s)
+		ds := strings.ToLower(string(bs))
+		if err != nil {
+			return "", err
+		}
+
+		// First get a frequency list for `s`
+		sFreqMap := make(map[rune]float64)
+		for _, c := range ds {
+			sFreqMap[c] += 1
+		}
+
+		// Actually calc the frequencies here
+		sLen := utf8.RuneCountInString(ds)
+		for key, value := range sFreqMap {
+			sFreqMap[key] = value / float64(sLen)
+		}
+
+		// Then compare the distance from s to `relativeFrequencies`
+		score := 0.0
+		for k, v := range sFreqMap {
+			if _, ok := relativeFrequencies[k]; !ok {
+				score += 0.1
+			}
+			score += math.Abs(v - relativeFrequencies[k])
+		}
+		scoredStrings[ds] = score
+	}
+
+	// Get best result
+	result := ""
+	minScore := math.MaxFloat64
+	for k, v := range scoredStrings {
+		if v < minScore {
+			minScore = v
+			result = k
+		}
+	}
+
+	return result, nil
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"github.com/j-haj/cryptopals/sets/go/set1"
 )
@@ -13,10 +12,7 @@ func TestSet1Challenge3() {
 		fmt.Printf("error - %v\n", err)
 		return
 	}
-	for _, x := range res {
-		decoded, _ := hex.DecodeString(x)
-		fmt.Printf("%v\n", string(decoded))
-	}
+	fmt.Printf("Best result: %v\n", res)
 }
 
 func main() {
