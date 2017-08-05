@@ -82,8 +82,16 @@ func Xor(s1, s2 string) (string, error) {
 	return output, nil
 }
 
-// TODO: rework -- first we want to get the decoded strings, then we want to
-// return a ranked top 5 selection based on relative letter frequency
+// SingleCharXor takes the given rune, replicates it so that it is as long
+// as the input string, and XORs the two strings together, returning the
+// resulting string
+func SingleCharXor(s string, r rune) (string, error) {
+
+}
+
+// XorCharMap takes a hex encoded input string that has been XOR'ed with
+// a single character and returns the most likely original string, based
+// on a character frequency analysis of the decoded string.
 func XorCharMap(s string) (string, error) {
 	charFrequencies := [26]rune{'e', 't', 'a', 'o', 'i', 'n', 's',
 		'h', 'd', 'l', 'c', 'u', 'm', 'w',
