@@ -82,11 +82,15 @@ func Xor(s1, s2 string) (string, error) {
 	return output, nil
 }
 
-// SingleCharXor takes the given rune, replicates it so that it is as long
+// RepeatedSingleCharXor takes the given rune, replicates it so that it is as long
 // as the input string, and XORs the two strings together, returning the
 // resulting string
-func SingleCharXor(s string, r rune) (string, error) {
-
+func RepeatedSingleCharXor(bytes []byte, r rune) string {
+	out := make([]byte, len(bytes))
+	for i := 0; i < len(bytes); i++ {
+		out[i] = bytes[i] ^ r
+	}
+	return out
 }
 
 // XorCharMap takes a hex encoded input string that has been XOR'ed with
